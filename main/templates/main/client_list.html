@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+{% load client_tags %}
+
+
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<!--Empty client list-->
+{% if not clients %}
+<div class="card border-warning mb-3 mx-auto mt-4" style="max-width: 700px;">
+    <div class="row g-2">
+        <div class="col-md-5">
+            <img src="{% static 'images/clients.jpg' %}" class="img-fluid rounded-start" alt="...">
+        </div>
+        <div class="col-md-7 d-flex flex-column">
+            <div class="card-body mt-auto">
+                <h5 class="card-title">No clients found</h5>
+                <br>
+                <p class="card-text">It looks like you don't have any clients yet.</p>
+                <p class="card-text">Would you like to add one now?</p>
+                <a href="{% url 'client_form' %}" class="btn btn-outline-success float-end mt-5">Start!</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-Not empty client list-->
+{% else %}
+
+<!--&lt;!&ndash; Sidebar слева &ndash;&gt;-->
+<!--<td valign="top" class="left-chapters">-->
+<!--    <ul id="leftchapters">-->
+<!--        {% if tag_selected == 0 %}-->
+<!--        <li class="selected">All tags</li>-->
+<!--        {% else %}-->
+<!--        <li><a href="#">All tags</a></li>-->
+<!--        {% endif %}-->
+<!--    </ul>-->
+<!--</td>-->
+<!--&lt;!&ndash; Конец Sidebar'а &ndash;&gt;-->
+
+<div class="container col-xl-7 col-xxl-7 px-4 py-5 mb-4">
+    <a href="{% url 'client_form' %}" class="btn btn-outline-success mb-2">Add new client</a>
+    <table class="table table-bordered border-warning table-warning table-hover">
+        <thead>
+        <tr>
+            <th scope="col" class="text-center">#</th>
+            <th scope="col" class="text-center">Email</th>
+            <th scope="col" class="text-center">Client name</th>
+            <th scope="col" class="text-center">Tag</th>
+            <th scope="col" class="text-center">Action</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for client in clients %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td><a href="{% url 'client_edit' pk=client.pk %}">{{ client.email }}</a></td>
+            <td>{{ client.full_name }}</td>
+            <td>{{ client.tag }}</td>
+            <td><a href="{% url 'client_edit' pk=client.pk %}">View/Edit</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<br>
+{% endif %}
+<div class="col-12">
+    <img src="{% static 'images/background.png' %}" class="img-fluid" alt="Image" style="width: 100%; height: auto;">
+</div>
+
+{% endblock %}

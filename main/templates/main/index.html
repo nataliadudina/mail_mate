@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<!--Sing up form-->
+<div class="container col-xl-8 col-xxl-8 px-4 py-5">
+    <div class="row align-items-center g-lg-5 py-5">
+        <div class="col-lg-7 text-center text-lg-start">
+            <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">Vertically centered hero sign-up form</h1>
+            <p class="col-lg-10 fs-4">Below is an example form built entirely with Bootstrap’s form controls. Each
+                required form group has a validation state that can be triggered by attempting to submit the form
+                without completing it.</p>
+        </div>
+        <div class="col-md-10 mx-auto col-lg-5">
+            <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary">
+                <div class="form-floating mb-3">
+                    <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+                    <label for="floatingInput">Email address</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                    <label for="floatingPassword">Password</label>
+                </div>
+                <div class="checkbox mb-3">
+                    <label>
+                        <input type="checkbox" value="remember-me"> Remember me
+                    </label>
+                </div>
+                <button class="w-100 btn btn-lg btn-primary" type="submit">Sign up</button>
+                <hr class="my-4">
+                <small class="text-body-secondary">By clicking Sign up, you agree to the terms of use.</small>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="height: 30vh;">
+        <div class="col-12 col-md-8 mx-auto">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">First</th>
+                    <th scope="col">Last</th>
+                    <th scope="col">Handle</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="table-info">
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>@mdo</td>
+                </tr>
+                <tr class="table-warning">
+                    <td>Jacob</td>
+                    <td>Thornton</td>
+                    <td>@fat</td>
+                </tr>
+                <tr class="table-danger">
+                    <td>Jacob</td>
+                    <td>Thornton</td>
+                    <td>@fat</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!--Random articles-->
+<div class="col-11 mx-auto d-flex justify-content-center">
+    <div class="row row-cols-1 row-cols-lg-3 align-items-stretch g-4 py-5">
+        {% for article in random_articles %}
+        <div class="col">
+            <a href="{% url 'view' slug=article.slug %}" style="text-decoration: none;">
+                <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg"
+                     style="background-image: url('{{ article.image.url }}'); background-size: contain;
+                     background-repeat: no-repeat; background-position: center; opacity: 0.7;">
+                    <div class="d-flex flex-column h-100 p-5 pb-3 text-black text-shadow-1">
+                        <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">{{ article.title }}</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<br><br>
+
+{% endblock %}

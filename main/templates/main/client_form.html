@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="d-flex justify-content-between">
+            <div class="col-md-5 mb-5 mt-4 mx-5" style="margin-right: 10px; padding-top: 20px;">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="card">
+                        <div class="card-header">
+                            {% if object %}
+                            <h5 class="text-center">Update data</h5>
+                            {% else %}
+                            <h5 class="text-center">Add a new client</h5>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            {% csrf_token %}
+                            {% for field in form %}
+                            <div class="mb-3">
+                                {{ field }}
+                            </div>
+                            {% endfor %}
+                            <div class="mt-3 text-start">
+                                <a href="{% url 'client_list' %}" class="btn btn-outline-success mb-2">Back to client
+                                    list</a>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                {% if object %}
+                                <button type="button" class="btn btn-outline-danger me-2" data-bs-toggle="modal"
+                                        data-bs-target="#confirmModal">
+                                    Delete
+                                </button>
+                                {% endif %}
+                                <button type="submit" class="btn btn-outline-success me-2">
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-5 mx-5" style="padding-top: 30px;">
+                <img src="{% static 'images/clients.jpg' %}" class="img-fluid" alt="Clients Image"
+                     style="max-width: 80%; height: auto;">
+            </div>
+        </div>
+    </div>
+</div>
+<br><br>
+
+<!-- Modal window for deletion-->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete client "{{ object.full_name }}"?</p>
+            </div>
+            <div class="modal-footer">
+                {% if object.pk %}
+                <form method="post" action="{% url 'client_delete' object.pk %}" id="deleteForm">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                            onclick="document.forms['deleteForm'].submit()">Yes, Delete
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

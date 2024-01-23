@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<!--Empty campaign list-->
+{% if not campaigns %}
+<div class="card border-warning mb-3 mx-auto mt-4" style="max-width: 700px;">
+    <div class="row g-2">
+        <div class="col-md-5">
+            <img src="{% static 'images/start.png' %}" class="img-fluid rounded-start" alt="...">
+        </div>
+        <div class="col-md-7 d-flex flex-column">
+            <div class="card-body mt-auto">
+                <h5 class="card-title">No mail campaigns found</h5>
+                <br>
+                <p class="card-text">It looks like you haven't created any campaigns yet.</p>
+                <p class="card-text">Would you like to start one now?</p>
+                <a href="{% url 'campaign_form' %}" class="btn btn-outline-success float-end mt-5">Go!</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Not empty campaign list-->
+{% else %}
+<div class="container col-xl-7 col-xxl-7 px-4 py-5 mb-4">
+    <a href="{% url 'campaign_form' %}" class="btn btn-outline-success mb-2">Create campaign</a>
+    <table class="table table-bordered border-warning table-warning table-hover">
+        <thead>
+        <tr>
+            <th scope="col" class="text-center">#</th>
+            <th scope="col" class="text-center">Campaign name</th>
+            <th scope="col" class="text-center">Template name</th>
+            <th scope="col" class="text-center">Send to</th>
+            <th scope="col" class="text-center">Frequency</th>
+            <th scope="col" class="text-center">Send at</th>
+            <th scope="col" class="text-center">Status</th>
+            <th scope="col" class="text-center">Action</th>
+            <th scope="col" class="text-center">Launch</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for campaign in campaigns %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td><a href="{% url 'campaign_edit' pk=campaign.pk %}">{{ campaign.campaign_name }}</a></td>
+            <td><a href="{% url 'template_edit' pk=campaign.template.pk %}">{{ campaign.template }}</a></td>
+            <td>{{ campaign.client_tag }}</td>
+            <td>{{ campaign.frequency }}</td>
+            <td>{{ campaign.formatted_send_time }}</td>
+            <td>{{ campaign.status }}</td>
+            <td><a href="{% url 'campaign_edit' pk=campaign.pk %}">View/Edit</a></td>
+            <td><a href="#" data-bs-toggle="modal" data-bs-target="#confirmModal{{ forloop.counter }}">Go!</a>
+
+                <!--                Modal dialog to launch campaign-->
+                <div class="modal fade" id="confirmModal{{ forloop.counter }}" tabindex="-1"
+                     aria-labelledby="confirmModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmModalLabel{{ forloop.counter }}">Launch Campaign</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to launch campaign "{{ campaign.campaign_name }}"?</p>
+                            </div>
+                            <div class="modal-footer">
+                                {% if campaign.pk %}
+                                <form method="post" action="{% url 'start_campaign' campaign.pk %}"
+                                      id="launchForm{{ forloop.counter }}">
+                                    {% csrf_token %}
+                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal"
+                                            onclick="document.forms['launchForm{{ forloop.counter }}'].submit()">Yes,
+                                        Launch!
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Oh, Gosh,
+                                        no!
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="col-12">
+    <img src="{% static 'images/background.png' %}" class="img-fluid" alt="Image" style="width: 100%; height: auto;">
+</div>
+
+{% endblock %}

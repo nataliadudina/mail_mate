@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<!--Empty template list-->
+{% if not mailing_messages %}
+<div class="card border-warning mb-3 mx-auto mt-4" style="max-width: 700px;">
+    <div class="row g-2">
+        <div class="col-md-5">
+            <img src="{% static 'images/tmpl.jpg' %}" class="img-fluid rounded-start" alt="...">
+        </div>
+        <div class="col-md-7 d-flex flex-column">
+            <div class="card-body mt-auto">
+                <h5 class="card-title">No templates found</h5>
+                <br>
+                <p class="card-text">It looks like there are no templates available for display at the moment.</p>
+                <p class="card-text">Would you like to make one now?</p>
+                <a href="{% url 'template_form' %}" class="btn btn-outline-success float-end mt-5">Create!</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Not empty template list-->
+{% else %}
+<div class="container col-xl-6 col-xxl-6 px-4 py-5 mb-4">
+    <a href="{% url 'template_form' %}" class="btn btn-outline-success mb-2">Create new template</a>
+    <table class="table table-bordered border-warning table-warning table-hover">
+        <thead>
+        <tr>
+            <th scope="col" class="text-center">#</th>
+            <th scope="col" class="text-center">Template name</th>
+            <th scope="col" class="text-center">Subject</th>
+            <th scope="col" class="text-center">Action</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for message in mailing_messages %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td><a href="{% url 'template_edit' pk=message.pk %}">{{ message.name }}</a></td>
+            <td>{{ message.subject }}</td>
+            <td><a href="{% url 'template_edit' pk=message.pk %}">View/Edit</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<br>
+{% endif %}
+
+<div class="col-12">
+    <img src="{% static 'images/background.png' %}" class="img-fluid" alt="Image" style="width: 100%; height: auto;">
+</div>
+
+{% endblock %}
