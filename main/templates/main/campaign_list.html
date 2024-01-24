@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
 {% include 'includes/background_strip.html' %}
 
@@ -95,8 +96,5 @@
 </div>
 {% endif %}
 
-<div class="col-12">
-    <img src="{% static 'images/background.png' %}" class="img-fluid" alt="Image" style="width: 100%; height: auto;">
-</div>
-
+{% include 'includes/lower_border.html' %}
 {% endblock %}

@@ -208,7 +208,21 @@ def start_campaign(request, pk):
 
 class MailingLogView(ListView):
     model = MailingLog
+    template_name = 'main/mailing_logs.html'
     paginate_by = 10
+    extra_context = {'page_title': 'Mailing Logs', 'title': 'Mailing Logs'}
+
+    def get_queryset(self):
+        # Filtering of mailings by launched and completed statuses
+        return MailingLog.objects.exclude(mailing__status='created')
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        mailing_logs = self.get_queryset()
+        context['mailing_list'] = mailing_logs
+
+        return context
 
 
 def page_not_found(request, exception):

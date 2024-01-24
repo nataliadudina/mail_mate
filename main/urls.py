@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import TemplateListView, TemplateCreateView, TemplateUpdateView, TemplateDeleteView, ClientListView, \
     ClientCreateView, ClientUpdateView, ClientDeleteView, MailCampaignList, MailCampaignCreate, MailCampaignUpdate, \
-    MailCampaignDelete, start_campaign
+    MailCampaignDelete, MailingLogView, start_campaign
 from . import views
 
 urlpatterns = [
@@ -23,4 +23,6 @@ urlpatterns = [
     path('campaigns/<int:pk>/edit/', MailCampaignUpdate.as_view(), name='campaign_edit'),
     path('campaigns/<int:pk>/delete/', MailCampaignDelete.as_view(), name='campaign_delete'),
     path('campaigns/start/<int:pk>/', start_campaign, name='start_campaign'),
+
+    path('logs/', MailingLogView.as_view(), name='mailing_logs'),
 ]

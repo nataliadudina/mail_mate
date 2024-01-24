@@ -71,7 +71,7 @@ class MailCampaign(models.Model):
 
 
 class MailingLog(models.Model):
-    mailing = models.ForeignKey(MailCampaign, on_delete=models.CASCADE)
+    mailing = models.ForeignKey(MailCampaign, on_delete=models.CASCADE, related_name='mailing')
     campaign_name = models.CharField(max_length=100)
     attempt_datetime = models.DateTimeField()
     completion_datetime = models.DateTimeField(null=True, blank=True)
@@ -85,8 +85,9 @@ class MailingLog(models.Model):
     server_response = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.attempt_datetime} - {self.completion_datetime} - {self.status} - {self.server_response}'
+        return f'{self.campaign_name} - {self.attempt_datetime} - {self.status}'
 
     class Meta:
         verbose_name = 'mailing log'
         verbose_name_plural = 'mailing logs'
+        ordering = ['-attempt_datetime']
