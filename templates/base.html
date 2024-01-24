@@ -29,20 +29,28 @@
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                 <li><a href="{% url 'home' %}" class="nav-link px-2 text-white">Home</a></li>
                 <li class="dropdown">
-                    <a href="#" class="nav-link px-2 text-white dropdown-toggle" id="featuresDropdown" role="button"
+                    <a href="#" class="nav-link px-2 text-white dropdown-toggle" id="featuresDropdown1" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">My MailMate</a>
-                    <ul class="dropdown-menu" aria-labelledby="featuresDropdown">
+                    <ul class="dropdown-menu" aria-labelledby="featuresDropdown1">
                         <li><a class="dropdown-item" href="{% url 'campaign_list' %}">Campaigns</a></li>
                         <li><a class="dropdown-item" href="{% url 'template_list' %}">Templates</a></li>
                         <li><a class="dropdown-item" href="{% url 'client_list' %}">Clients</a></li>
                     </ul>
                 </li>
-                <li><a href="/blog/" class="nav-link px-2 text-white">Blog</a></li>
+                <li class="dropdown">
+                    <a href="#" class="nav-link px-2 text-white dropdown-toggle" id="featuresDropdown2" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">Blog</a>
+                    <ul class="dropdown-menu" aria-labelledby="featuresDropdown2">
+                        <li><a class="dropdown-item" href="/blog/">Read Articles</a></li>
+                        <li><a class="dropdown-item" href="{% url 'create' %}">Add a Post</a></li>
+                    </ul>
+                </li>
             </ul>
 
-            <div class="text-end">
+            <div class="position-absolute end-0 pe-5">
                 <button type="button" class="btn btn-outline-light me-2">Login</button>
-                <button type="button" class="btn btn-warning">Sign-up</button>
+                <button type="button" class="btn btn-warning me-2">Sign-up</button>
+                <button type="button" class="btn btn-outline-light me-5">Admin Panel</button>
             </div>
         </div>
     </div>
@@ -55,7 +63,8 @@
 <footer class="footer mt-auto py-3 bg-dark text-white fixed-bottom">
     <div class="container">
         <p class="float-end"><a href="#">Back to top</a></p>
-        <p>&copy; 2023 - {% now 'Y' %} &middot; Mail Mate - Mailing List Management Service &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+        <p>&copy; 2023 - {% now 'Y' %} &middot; Mail Mate - Mailing List Management Service &middot; <a
+                href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
     </div>
 </footer>
 

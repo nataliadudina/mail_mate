@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load blog_tags %}
+
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<div class="container mt-4">
+    <div class="row">
+        {% for article in articles %}
+        <div class="col-md-4 mb-4">
+            <a href="{% url 'view' article.slug %}">
+            <img src="{% imagepath_tag article.image %}" class="card-img-top" alt="Post Image">
+                </a>
+            <div class="card-body">
+                <h5 class="card-title">{{ article.title }}</h5>
+                <br>
+                <p class="card-text">{{ article.content|linebreaks|truncatewords:40 }}</p>
+                <a href="{% url 'view' article.slug %}" class="btn btn-outline-success btn-sm">Read</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% include 'includes/Lower_border.html' %}
+{% endblock %}

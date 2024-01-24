@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<div class="d-flex justify-content-center align-items-center" style="height: 30vh;">
+    <div class="col-3">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <p class="text-align-justify">Delete the article {{article.title}}?</p>
+                    <div class="d-flex m-4">
+                        <button type="submit" class="btn btn-danger" style="margin-right: 15px;">Confirm</button>
+                        <a href="{% url 'list' %}" class="btn btn-warning">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'includes/Lower_border.html' %}
+{% endblock %}

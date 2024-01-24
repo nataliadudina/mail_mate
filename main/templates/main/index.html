@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load blog_tags %}
+
 {% block content %}
 {% include 'includes/background_strip.html' %}
 
@@ -27,7 +29,7 @@
                         <input type="checkbox" value="remember-me"> Remember me
                     </label>
                 </div>
-                <button class="w-100 btn btn-lg btn-primary" type="submit">Sign up</button>
+                <button class="w-100 btn btn-lg btn-warning" type="submit">Sign up</button>
                 <hr class="my-4">
                 <small class="text-body-secondary">By clicking Sign up, you agree to the terms of use.</small>
             </form>
@@ -36,37 +38,32 @@
 </div>
 
 <!-- Table -->
-<div class="container">
-    <div class="row justify-content-center align-items-center" style="height: 30vh;">
-        <div class="col-12 col-md-8 mx-auto">
-            <table class="table table-hover">
-                <thead>
-                <tr class="table-primary">
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr class="table-info">
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                </tr>
-                <tr class="table-warning">
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                </tr>
-                <tr class="table-danger">
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="container col-xl-8 col-xxl-8 px-4 py-5">
+    <table class="table table-bordered border-success text-center">
+        <thead>
+        <tr>
+            <th colspan="4" class="bg-success text-white fs-5">Mailing Statistics</th>
+        </tr>
+        <tr>
+            <th scope="col">Total Campaigns</th>
+            <th scope="col">Active Campaigns</th>
+            <th scope="col">Customer Base</th>
+            <th scope="col">Segmentation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="text-success fw-bold">{{ total_campaigns }}</td>
+            <td class="text-success fw-bold">{{ active_campaigns }}</td>
+            <td class="text-success fw-bold">{{ total_clients }}</td>
+            <td class="text-success fw-bold">{{ unique_tags_count }}</td>
+        </tr>
+        <tr>
+            <td colspan="2"><a href="{% url 'campaign_list' %}" class="text-success fw-bold">To Campaigns</a></td>
+            <td colspan="2"><a href="{% url 'client_list' %}" class="text-success fw-bold">To Customer Base</a></td>
+        </tr>
+        </tbody>
+    </table>
 </div>
 
 <!--Random articles-->
@@ -76,7 +73,7 @@
         <div class="col">
             <a href="{% url 'view' slug=article.slug %}" style="text-decoration: none;">
                 <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg"
-                     style="background-image: url('{{ article.image.url }}'); background-size: contain;
+                     style="background-image: url('{% imagepath_tag article.image %}'); background-size: contain;
                      background-repeat: no-repeat; background-position: center; opacity: 0.7;">
                     <div class="d-flex flex-column h-100 p-5 pb-3 text-black text-shadow-1">
                         <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">{{ article.title }}</h3>

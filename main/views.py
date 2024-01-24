@@ -11,8 +11,18 @@ from blog.models import Article
 
 def index(request):
     random_articles = Article.objects.all().order_by('?')[:3]  # Retrieves 3 random articles
+    total_campaigns = MailCampaign.objects.all().count()
+    active_campaigns = MailCampaign.objects.filter(status='created').count()
+    total_clients = Client.objects.all().count()
+    # flat=True means that the values will be represented as a one-dimensional list (not tuples)
+    unique_tags_count = Client.objects.values_list('tag', flat=True).distinct().count()
+
     context = {
         'title': 'Welcome to Mail Mate',
+        'total_campaigns': total_campaigns,
+        'active_campaigns': active_campaigns,
+        'total_clients': total_clients,
+        'unique_tags_count': unique_tags_count,
         'random_articles': random_articles
     }
     return render(request, 'main/index.html', context)
@@ -71,6 +81,7 @@ class TemplateDeleteView(DeleteView):
 
 class ClientListView(ListView):
     template_name = 'main/client_list.html'
+    paginate_by = 10
     extra_context = {'page_title': 'Clients', 'title': 'Clients'}
 
     def get_queryset(self):
@@ -130,6 +141,7 @@ class ClientDeleteView(DeleteView):
 class MailCampaignList(ListView):
     template_name = 'main/campaign_list.html'
     model = MailCampaign
+    paginate_by = 10
     extra_context = {'page_title': 'Campaigns', 'title': 'Campaigns'}
 
     def get_queryset(self):
