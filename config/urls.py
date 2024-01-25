@@ -21,10 +21,11 @@ from django.urls import path, include
 from main.views import page_not_found
 
 urlpatterns = (([
-                   path('admin/', admin.site.urls),
-                   path('', include('main.urls')),
-                   path('blog/', include('blog.urls')),
-               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
+                    path('admin/', admin.site.urls),
+                    path('', include('main.urls')),
+                    path('blog/', include('blog.urls')),
+                    path('users/', include('users.urls', namespace='users')),
+                ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
                + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT))
 
 handler404 = page_not_found

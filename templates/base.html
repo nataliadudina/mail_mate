@@ -49,9 +49,20 @@
             </ul>
 
             <div class="position-absolute end-0 pe-5">
-                <button type="button" class="btn btn-outline-light me-2">Login</button>
-                <button type="button" class="btn btn-warning me-2">Sign-up</button>
-                <button type="button" class="btn btn-outline-light me-5">Admin Panel</button>
+                {% if user.is_authenticated %}
+                <button type="button" class="btn btn-outline-light me-2"><a href="{% url 'users:profile' %}">{{
+                    user.username|default:'ghost' }}</a>
+                </button>
+                <button type="button" class="btn btn-warning me-2"><a href="{% url 'users:logout' %}">Logout</a>
+                </button>
+                {% else %}
+                <button type="button" class="btn btn-outline-light me-2"><a href="{% url 'users:profile' %}">{{
+                    user.username|default:'ghost' }}</a>Login
+                </button>
+                <button type="button" class="btn btn-warning me-2"><a href="{% url 'users:register' %}">Sign-up</a> </button>
+                <button type="button" class="btn btn-outline-light me-5"><a href="/admin/">Admin Panel</a>Admin Panel
+                </button>
+                {% endif %}
             </div>
         </div>
     </div>

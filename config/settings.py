@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'main.apps.MainConfig',
     'django_apscheduler',
     'blog.apps.BlogConfig',
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -128,6 +129,8 @@ EMAIL_USE_SSL = bool(os.getenv('EMAIL_USE_SSL'))
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
+
+AUTH_USER_MODEL = 'users.User'
 
 # APScheduler settings
 # SCHEDULER_JOB_DEFAULTS = {

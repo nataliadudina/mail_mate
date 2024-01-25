@@ -1,32 +1,9 @@
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.utils.text import slugify
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
 # from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from blog.models import Article
-
-
-class ArticleCreateView(CreateView):    # LoginRequiredMixin
-    model = Article
-    fields = ('title', 'content', 'image')
-    extra_context = {'page_title': 'Mailing Blog: write', 'title': 'Writing New Post'}
-    success_url = reverse_lazy('list')
-
-    # Validates the form and sets the article's slug and author
-    def form_valid(self, form):
-        if form.is_valid():
-            new_article = form.save(commit=False)  # Prepare the article without saving to DB
-            new_article.slug = slugify(new_article.title)  # Generate a slug from the title
-            # new_article.author = self.request.user  # Set the current user as the author
-            new_article.save()   # Save the article to the DB
-
-            # If an image is provided, attach it to the article
-            image = form.cleaned_data['image']
-            if image:
-                new_article.image = image
-                new_article.save()
-
-            return super().form_valid(form)  # Call the superclass method to handle redirection
 
 
 class BlogListView(ListView):
@@ -56,33 +33,43 @@ class ArticleDetailView(DetailView):
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)  # Retrieves the article
         self.object.views_count += 1  # Increment the views count
-        self.object.save()  # Save the updated article
+        self.object.save(update_fields=['views_count'])   # Saves only views_count field
         return self.object
 
 
-class ArticleUpdateView(UpdateView):    # UserPassesTestMixin,
-    # User must pass certain checks to update an article
-    model = Article
-    fields = ('title', 'content', 'image', 'publication')
-    extra_context = {'page_title': 'Mailing Blog: edit', 'title': 'Updating the Post'}
-    success_url = reverse_lazy('list')
-
+class ArticleFormMixin:
+    # Validates the form and sets the article's slug
     def form_valid(self, form):
         if form.is_valid():
-            edited_article = form.save(commit=False)
-            edited_article.slug = slugify(edited_article.title)
-            edited_article.save()
+            article = form.save(commit=False)
+            article.slug = slugify(article.title)
+            article.save()
+
+            image = form.cleaned_data['image']
+            if image:
+                article.image = image
+                article.save()
 
             return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse('view', args=[self.object.slug])
+
+class ArticleCreateView(ArticleFormMixin, CreateView):    # LoginRequiredMixin
+    model = Article
+    fields = ('title', 'content', 'publication', 'image')
+    extra_context = {'page_title': 'Mailing Blog: write', 'title': 'Writing New Post'}
+
+
+class ArticleUpdateView(ArticleFormMixin, UpdateView):    # UserPassesTestMixin,
+    # User must pass certain checks to update an article
+    model = Article
+    fields = ('title', 'content', 'publication', 'image')
+    extra_context = {'page_title': 'Mailing Blog: edit', 'title': 'Updating the Post'}
 
     # Checks if the user is allowed to update the article
     # def test_func(self):
     #     article = self.get_object()
-    #     # User must be in 'content-manager' group or the author of the article
-    #     return self.request.user.groups.filter(name='content-manager').exists() or self.request.user == article.author
+    #     # User must be in 'content-manager' group
+    #     return self.request.user.groups.filter(name='content-manager').exists()
 
 
 class ArticleDeleteView(DeleteView):    # UserPassesTestMixin,
@@ -93,5 +80,5 @@ class ArticleDeleteView(DeleteView):    # UserPassesTestMixin,
 
     # def test_func(self):
     #     article = self.get_object()
-    #     # User must be in 'content-manager' group or the author of the article to delete it
-    #     return self.request.user.groups.filter(name='content-manager').exists() or self.request.user == article.author
+    #     # User must be in 'content-manager' group
+    #     return self.request.user.groups.filter(name='content-manager').exists()

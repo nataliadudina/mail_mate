@@ -12,7 +12,6 @@ class Article(models.Model):
     title = models.CharField(max_length=100, verbose_name='Title')
     slug = models.CharField(max_length=100, unique=True, db_index=True)
     content = models.TextField(blank=True, null=True, db_index=True)
-    author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='posts', null=True, default=None)
     image = models.ImageField(upload_to='images/blog/', blank=True, null=True)
     time_created = models.DateTimeField(auto_now_add=True)
     publication = models.CharField(
@@ -26,6 +25,13 @@ class Article(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Checks if there is an image
+        if self.image:
+            # Deletes image
+            self.image.delete()
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return self.title
