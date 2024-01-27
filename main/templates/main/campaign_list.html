@@ -46,7 +46,7 @@
         <tbody>
         {% for campaign in campaigns %}
         <tr>
-            <th scope="row">{{ forloop.counter }}</th>
+            <th scope="row">{{ page_obj.start_index|add:forloop.counter0 }}</th>
             <td><a href="{% url 'campaign_edit' pk=campaign.pk %}">{{ campaign.campaign_name }}</a></td>
             <td><a href="{% url 'template_edit' pk=campaign.template.pk %}">{{ campaign.template }}</a></td>
             <td>{{ campaign.client_tag }}</td>
@@ -94,6 +94,10 @@
         </tbody>
     </table>
 </div>
+{% endif %}
+
+{% if page_obj.has_other_pages %}
+{% include 'includes/pagination.html' %}
 {% endif %}
 
 {% include 'includes/lower_border.html' %}

@@ -5,6 +5,7 @@
 {% block content %}
 {% include 'includes/background_strip.html' %}
 
+{% if not user.is_authenticated %}
 <!--Sing up form-->
 <div class="container col-xl-8 col-xxl-8 px-4 py-5">
     <div class="row align-items-center g-lg-5 py-5">
@@ -15,19 +16,22 @@
             <p class="col-lg-10 fs-4">Get started now!</p>
         </div>
         <div class="col-md-10 mx-auto col-lg-5">
-            <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary">
+            <form method="post" action="" class="p-4 p-md-5 border rounded-3 bg-body-tertiary">
+                {% csrf_token %}
                 <div class="form-floating mb-3">
-                    <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+                    <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com"
+                           name="email">
                     <label for="floatingInput">Email address</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password"
+                           name="password1">
                     <label for="floatingPassword">Password</label>
                 </div>
-                <div class="checkbox mb-3">
-                    <label>
-                        <input type="checkbox" value="remember-me"> Remember me
-                    </label>
+                <div class="form-floating mb-3">
+                    <input type="password" class="form-control" id="floatingConfirm password" placeholder="Confirm password"
+                           name="password2">
+                    <label for="floatingPassword">Password</label>
                 </div>
                 <button class="w-100 btn btn-lg btn-warning" type="submit">Sign up</button>
                 <hr class="my-4">
@@ -36,7 +40,9 @@
         </div>
     </div>
 </div>
+{% endif %}
 
+{% if user.is_authenticated %}
 <!-- Table -->
 <div class="container col-xl-8 col-xxl-8 px-4 py-5">
     <table class="table table-bordered border-success text-center">
@@ -65,6 +71,7 @@
         </tbody>
     </table>
 </div>
+{% endif %}
 
 <!--Random articles-->
 <div class="col-11 mx-auto d-flex justify-content-center">

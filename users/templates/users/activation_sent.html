@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+    <section class="container-xxl mt-5">
+        <div class="row">
+            <!-- Image column -->
+            <div class="col-md-6">
+                <img src="{% static 'activation.jpg' %}" alt="Activation email"  class="img-fluid w-75">
+            </div>
+            <!-- Text column -->
+            <div class="col-md-5">
+                <h1 class="text-center text-black">Activation Email Sent!</h1>
+                <br>
+                <p>Thank you for registering! We have sent you an email with instructions to activate your account.</p>
+                <p>Please check your inbox and follow the link provided to complete the registration process.</p>
+            </div>
+
+        </div>
+    </section>
+
+{% endblock %}

@@ -40,7 +40,7 @@
         <tbody>
         {% for message in mailing_messages %}
         <tr>
-            <th scope="row">{{ forloop.counter }}</th>
+            <th scope="row">{{ page_obj.start_index|add:forloop.counter0 }}</th>
             <td><a href="{% url 'template_edit' pk=message.pk %}">{{ message.name }}</a></td>
             <td>{{ message.subject }}</td>
             <td><a href="{% url 'template_edit' pk=message.pk %}">View/Edit</a></td>
@@ -50,6 +50,10 @@
     </table>
 </div>
 <br>
+{% endif %}
+
+{% if page_obj.has_other_pages %}
+{% include 'includes/pagination.html' %}
 {% endif %}
 
 {% include 'includes/lower_border.html' %}

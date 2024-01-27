@@ -23,5 +23,9 @@
     </div>
 </div>
 
+{% if page_obj.has_other_pages %}
+{% include 'includes/pagination.html' %}
+{% endif %}
+
 {% include 'includes/Lower_border.html' %}
 {% endblock %}

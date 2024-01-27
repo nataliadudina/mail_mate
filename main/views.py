@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseNotFound
 from .models import MailingMessage, Client, MailCampaign, MailingLog
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, View
 from .forms import TemplateForm, ClientForm, MailCampaignForm
+from users.forms import SimpleRegisterUserForm
 from django.urls import reverse
 from main.tasks import launch_campaign
 from django.views.decorators.http import require_POST
+from users.services import send_activation_email
 from blog.models import Article
 
 
@@ -17,19 +19,30 @@ def index(request):
     # flat=True means that the values will be represented as a one-dimensional list (not tuples)
     unique_tags_count = Client.objects.values_list('tag', flat=True).distinct().count()
 
+    if request.method == 'POST':
+        form = SimpleRegisterUserForm(request.POST)
+        if form.is_valid():
+            # Save the data
+            user = form.save()
+            send_activation_email(request, user)
+            return redirect('users:activation_sent')
+    else:
+        form = SimpleRegisterUserForm()
+
     context = {
         'title': 'Welcome to Mail Mate',
         'total_campaigns': total_campaigns,
         'active_campaigns': active_campaigns,
         'total_clients': total_clients,
         'unique_tags_count': unique_tags_count,
-        'random_articles': random_articles
+        'random_articles': random_articles,
     }
     return render(request, 'main/index.html', context)
 
 
 class TemplateListView(ListView):
     template_name = 'main/template_list.html'
+    paginate_by = 10
     extra_context = {'page_title': 'Templates', 'title': 'Templates'}
 
     def get_queryset(self):
@@ -37,7 +50,7 @@ class TemplateListView(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['mailing_messages'] = MailingMessage.objects.all()
+        context['mailing_messages'] = context['object_list']
         return context
 
 
@@ -89,7 +102,7 @@ class ClientListView(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['clients'] = Client.objects.all()
+        context['clients'] = context['object_list']
         return context
 
 
@@ -149,13 +162,8 @@ class MailCampaignList(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['campaigns'] = MailCampaign.objects.all()
+        context['campaigns'] = context['object_list']
         return context
-
-    # def get_campaign_details(self, request, campaign_id):
-    #     campaign = MailCampaign.objects.get(pk=campaign_id)
-    #     # Convert the campaign object to JSON and return it
-    #     return JsonResponse(model_to_dict(campaign))
 
 
 class MailCampaignCreate(CreateView):
@@ -180,7 +188,7 @@ class MailCampaignUpdate(UpdateView):
 
     # Override the form_valid method to handle form submission
     def form_valid(self, form):
-        if self.object.status == 'completed':
+        if self.object.status in ('completed', 'launched'):
             self.object.status = 'created'
             self.object.save()
         return super().form_valid(form)
@@ -201,7 +209,6 @@ class MailCampaignDelete(DeleteView):
 def start_campaign(request, pk):
     # Runs the campaign when it is launched manually
     campaign = get_object_or_404(MailCampaign, pk=pk)
-    print(f"start_campaign: {campaign.campaign_name}")
     launch_campaign(campaign.pk)  # Launches campaign
     return redirect('campaign_list')
 
@@ -213,16 +220,29 @@ class MailingLogView(ListView):
     extra_context = {'page_title': 'Mailing Logs', 'title': 'Mailing Logs'}
 
     def get_queryset(self):
-        # Filtering of mailings by launched and completed statuses
-        return MailingLog.objects.exclude(mailing__status='created')
+        try:
+            # Filtering of mailings by launched and completed statuses
+            return MailingLog.objects.all()
+        except OperationalError as e:
+            return HttpResponseServerError("Database Error: " + str(e))
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        mailing_logs = self.get_queryset()
-        context['mailing_list'] = mailing_logs
+        try:
+            mailing_logs = self.get_queryset()
+            context['mailing_list'] = mailing_logs
+        except OperationalError as e:
+            context['mailing_list'] = []
+            context['error_message'] = "Database Error: " + str(e)
 
         return context
+
+
+class ClearLogsView(View):
+    def post(self, request):
+        MailingLog.objects.all().delete()
+        return redirect('campaign_list')
 
 
 def page_not_found(request, exception):

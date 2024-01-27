@@ -23,7 +23,7 @@ class MailingMessage(models.Model):
     body = models.TextField(verbose_name='Content')
 
     def __str__(self):
-        return f'{self.subject}'
+        return f'{self.name}'
 
     class Meta:
         verbose_name = 'template'
@@ -90,4 +90,4 @@ class MailingLog(models.Model):
     class Meta:
         verbose_name = 'mailing log'
         verbose_name_plural = 'mailing logs'
-        ordering = ['-attempt_datetime']
+        ordering = ['attempt_datetime']

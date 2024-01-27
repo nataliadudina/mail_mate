@@ -12,7 +12,7 @@ class Article(models.Model):
     title = models.CharField(max_length=100, verbose_name='Title')
     slug = models.CharField(max_length=100, unique=True, db_index=True)
     content = models.TextField(blank=True, null=True, db_index=True)
-    image = models.ImageField(upload_to='images/blog/', blank=True, null=True)
+    image = models.ImageField(upload_to='images/blog/', blank=True, null=True, verbose_name='Image Path')
     time_created = models.DateTimeField(auto_now_add=True)
     publication = models.CharField(
         max_length=10,

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+{% include 'includes/background_strip.html' %}
+
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="height: 90vh;">
+        <!-- Image column -->
+        <div class="col-10 col-md-6">
+            <img src="{% static 'profile.jpg' %}" alt="Profile" class="img-fluid w-75">
+        </div>
+        <div class="col-10 col-md-4">
+            <div class="card box-shadow">
+                <div class="card-body">
+                    <form method="post" action="" class="form-floating" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if user.avatar %}
+                        <p style="text-align: center;">
+                            <img src="{{ user.avatar.url }}" alt="User Avatar"
+                                 style="max-width: 90%; max-height: 200px;"></p>
+                        {% else %}
+                        <p style="text-align: center;">
+                            <img src="{{ default_image }}" alt="Default Image"
+                                 style="max-width: 50%; max-height: 200px;"></p>
+                        {% endif %}
+
+                        <div class="form-error mb-3">{{ form.non_field_errors }}</div>
+                        {% for f in form %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>
+                            {{ f }}
+                            <div class="form-error">{{ f.errors }}</div>
+                        </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-warning w-50">Save</button>
+                    </form>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+            <p><a href="{% url 'users:password_change' %}">Change password</a></p>
+        </div>
+        </div>
+    </div>
+</div>
+<br><br>
+
+{% endblock %}

@@ -6,6 +6,11 @@
 
 <div class="container col-xl-8 col-xxl-8 px-4 py-5">
     <table class="table table-bordered border-success table-hover text-center">
+        <form method="post" action="{% url 'clear_logs' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger float-end mb-2">Log Clear</button>
+        </form>
+
         <thead>
         <tr>
             <th scope="col">Campaign Name</th>
@@ -16,11 +21,11 @@
         </tr>
         </thead>
         <tbody>
-        {% for log in mailing_list %}
+        {% for log in object_list %}
         <tr>
             <td><a href="{% url 'campaign_list' %}">{{ log.mailing.campaign_name }}</a></td>
-            <td>{{ log.attempt_datetime }}</td>
-            <td>{{ log.completion_datetime }}</td>
+            <td>{{ log.attempt_datetime|date:"d.m.Y - H:i" }}</td>
+            <td>{{ log.completion_datetime|date:"d.m.Y - H:i" }}</td>
             <td>{{ log.status }}</td>
             <td>{{ log.server_response }}</td>
         </tr>
@@ -29,6 +34,9 @@
     </table>
 </div>
 
+{% if page_obj.has_other_pages %}
+{% include 'includes/pagination.html' %}
+{% endif %}
 
 {% include 'includes/lower_border.html' %}
 {% endblock %}

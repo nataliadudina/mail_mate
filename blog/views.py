@@ -16,7 +16,12 @@ class BlogListView(ListView):
 
     # Only retrieves published articles for the view
     def get_queryset(self, *args, **kwargs):
-        return Article.objects.filter(publication=Article.Status.PUBLISHED)
+        return Article.objects.filter(publication=Article.Status.PUBLISHED).order_by('id')
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['articles'] = context['article_list']
+        return context
 
 
 class ArticleDetailView(DetailView):

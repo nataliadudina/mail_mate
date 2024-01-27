@@ -56,7 +56,7 @@
         <tbody>
         {% for client in clients %}
         <tr>
-            <th scope="row">{{ forloop.counter }}</th>
+            <th scope="row">{{ page_obj.start_index|add:forloop.counter0 }}</th>
             <td><a href="{% url 'client_edit' pk=client.pk %}">{{ client.email }}</a></td>
             <td>{{ client.full_name }}</td>
             <td>{{ client.tag }}</td>
@@ -67,6 +67,10 @@
     </table>
 </div>
 <br>
+{% endif %}
+
+{% if page_obj.has_other_pages %}
+{% include 'includes/pagination.html' %}
 {% endif %}
 
 {% include 'includes/lower_border.html' %}

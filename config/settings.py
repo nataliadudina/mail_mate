@@ -99,7 +99,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -120,6 +121,17 @@ MEDIA_ROOT = BASE_DIR / 'media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+LOGIN_URL = 'users:login'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # standard backend (username + password)
+    'users.authentication.NameAuthBackend',  # custom backend (email + password)
+    ]
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT'))
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
@@ -130,7 +142,18 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
 
+CACHE_ENABLED = os.getenv('CACHE_ENABLED') == 'True'
+
+if CACHE_ENABLED:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": os.getenv("CACHE_LOCATION"),
+        }
+    }
+
 AUTH_USER_MODEL = 'users.User'
+DEFAULT_USER_IMAGE = MEDIA_URL + 'images/users/default.jpg'
 
 # APScheduler settings
 # SCHEDULER_JOB_DEFAULTS = {
@@ -145,5 +168,5 @@ AUTH_USER_MODEL = 'users.User'
  """
 # SCHEDULER_API_ENABLED = True
 
-# APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
-# APSCHEDULER_RUN_NOW_TIMEOUT = 25
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25
