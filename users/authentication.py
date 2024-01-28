@@ -2,13 +2,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend
 
 
-"""Custom authentication backend that allows users 
-to authenticate using their either username or email"""
-
-
 class NameAuthBackend(BaseBackend):
-    # Authenticates the given credentials
-    def authenticate(self, request, username=None, password=None, **kwargs):
+    """Custom authentication backend that allows users
+    to authenticate using their either username or email"""
+    def authenticate(self, request, username=None, password=None, **kwargs):    # Authenticates the given credentials
         user_model = get_user_model()
         try:
             if '@' in username:  # Checks if the entered string is an email

@@ -14,7 +14,6 @@ class MailCampaignAdmin(admin.ModelAdmin):
     search_fields = ('campaign_name', 'template__name', 'client_tag__tag',)
     list_per_page = 10
     save_on_top = True
-#     list_select_related = ('category',)  # pre-loads related categories
 
 
 @admin.register(MailingMessage)

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load blog_tags %}
+{% load cache %}
 
 {% block content %}
 {% include 'includes/background_strip.html' %}
@@ -43,6 +44,7 @@
 {% endif %}
 
 {% if user.is_authenticated %}
+{% cache 60 statistics %}
 <!-- Table -->
 <div class="container col-xl-8 col-xxl-8 px-4 py-5">
     <table class="table table-bordered border-success text-center">
@@ -71,6 +73,8 @@
         </tbody>
     </table>
 </div>
+
+{% endcache %}
 {% endif %}
 
 <!--Random articles-->

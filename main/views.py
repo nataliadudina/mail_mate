@@ -12,6 +12,8 @@ from django.views.decorators.http import require_POST
 from users.services import send_activation_email
 from blog.models import Article
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
+from django.conf import settings
 
 
 # Denies user access to other objects
@@ -115,7 +117,13 @@ class ClientListView(LoginRequiredMixin, OwnerRequiredMixin, ListView):
     extra_context = {'page_title': 'Clients', 'title': 'Clients'}
 
     def get_queryset(self):
-        return Client.objects.filter(owner=self.request.user)
+        key = 'clients'
+        clients = cache.get(key)
+        if clients is None:
+            clients = Client.objects.filter(owner=self.request.user)
+            if settings.CACHE_ENABLED:
+                cache.set(key, clients, timeout=3600)
+        return clients
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
