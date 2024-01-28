@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<!--Empty log-->
+{% if not logs %}
+<div class="card border-warning mb-3 mx-auto mt-4" style="max-width: 700px;">
+    <div class="row g-2">
+        <div class="col-md-5">
+            <img src="{% static 'images/loggs.jpg' %}" class="img-fluid rounded-start" alt="...">
+        </div>
+        <div class="col-md-7 d-flex flex-column">
+            <div class="card-body mt-auto">
+                <h5 class="card-title">Empty log...</h5>
+                <br>
+                <p class="card-text">It looks like your logbook is empty.</p>
+                <p class="card-text">Launch your campaigns to start logging.</p>
+                <a href="{% url 'campaign_list' %}" class="btn btn-outline-success float-end mt-5">To campaigns</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Not empty log -->
+{% else %}
+<div class="container col-xl-10 col-xxl-10 px-4 py-5">
+    <table class="table table-bordered border-success table-hover text-center">
+        <form method="post" action="{% url 'clear_logs' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger float-end mb-2">Log Clear</button>
+        </form>
+
+        <thead>
+        <tr>
+            <th scope="col">Campaign Name</th>
+            <th scope="col">Mailing Start Time</th>
+            <th scope="col">Mailing Completion Time</th>
+            <th scope="col">Campaign Status</th>
+            <th scope="col">Server Response</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for log in object_list %}
+        <tr>
+            <td><a href="{% url 'campaign_list' %}">{{ log.mailing.campaign_name }}</a></td>
+            <td>{{ log.attempt_datetime|date:"d.m.Y - H:i" }}</td>
+            <td>{{ log.completion_datetime|date:"d.m.Y - H:i" }}</td>
+            <td>{{ log.status }}</td>
+            <td>{{ log.server_response }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if page_obj.has_other_pages %}
+{% include 'includes/pagination.html' %}
+{% endif %}
+
+{% include 'includes/lower_border.html' %}
+{% endblock %}

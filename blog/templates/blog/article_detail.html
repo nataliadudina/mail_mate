@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load blog_tags %}
+
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<section style="overflow-y: auto;">
+    <div class="container d-flex flex-wrap">
+        <div class="card mx-auto col-md-8 w-100 h-100 border-0" style="margin-top: 30px;">
+            <div class="row g-0 d-flex justify-content-center">
+                <div class="col-md-4 mb-5 mt-4 mr-4">
+                    <img src="{% imagepath_tag article.image %}"
+                         class="img-fluid rounded-start" alt="Post Image" style="max-width: 120%; height: auto;">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <p class="card-text" style="text-align: justify; width: 100%;">{{ article.content|linebreaks }}</p>
+                        <p style="text-align: right;"><b>Published:</b> {{ article.time_created|date:"F j, Y" }}</p>
+                        <li style="text-align: left;">Pageviews: {{ object.views_count }}</li>
+                        <li style="text-align: left;"><a href="{% url 'list' %}">To all articles</a></li>
+                        <br>
+
+                        <!-- Buttons for editing, deleting, viewing articles -->
+                        {% if perms.blog.change_article %}
+                    <p style="text-align: left;"><a href="{% url 'update' slug=article.slug %}">Edit</a> |
+                    <a href="{% url 'delete' slug=article.slug %}">Delete</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% include 'includes/Lower_border.html' %}
+{% endblock %}

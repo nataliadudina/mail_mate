@@ -1,0 +1,32 @@
+.list-pages {
+    text-align: center;
+}
+
+.list-pages ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: inline-block;
+}
+
+.list-pages ul li {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.list-pages ul li a {
+    display: block;
+    padding: 5px 10px;
+    text-decoration: none;
+    background-color: #ffc107;
+    color: #333;
+    border: 1px solid #ffc107;
+    border-radius: 3px;
+}
+
+.list-pages ul li.page-num-selected a {
+    background-color: #ffc107; /* Жёлтый цвет в Bootstrap */
+    color: #333;
+    border: 1px solid #ffc107; /* Также используйте жёлтый цвет для границы */
+    border-radius: 3px;
+}

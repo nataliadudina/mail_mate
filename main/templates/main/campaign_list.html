@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<!--Empty campaign list-->
+{% if not campaigns %}
+<div class="card border-warning mb-3 mx-auto mt-4" style="max-width: 700px;">
+    <div class="row g-2">
+        <div class="col-md-5">
+            <img src="{% static 'images/start.png' %}" class="img-fluid rounded-start" alt="Start">
+        </div>
+        <div class="col-md-7 d-flex flex-column">
+            <div class="card-body mt-auto">
+                <h5 class="card-title">No mail campaigns found</h5>
+                <br>
+                <p class="card-text">It looks like you haven't created any campaigns yet.</p>
+                <p class="card-text">Would you like to start one now?</p>
+                <a href="{% url 'campaign_form' %}" class="btn btn-outline-success float-end mt-5">Go!</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Not empty campaign list-->
+{% else %}
+<div class="container col-xl-10 col-xxl-10 px-4 py-5 mb-4">
+    <div style="display: flex; justify-content: space-between;">
+        <a href="{% url 'campaign_form' %}" class="btn btn-outline-success mb-2">Create campaign</a>
+        <button type="button" class="btn btn-warning mb-2" data-bs-toggle="modal" data-bs-target="#confirmAllModal">
+            Run all campaigns
+        </button>
+    </div>
+    <table class="table table-bordered border-warning table-warning table-hover">
+        <thead>
+        <tr>
+            <th scope="col" class="text-center">#</th>
+            <th scope="col" class="text-center">Campaign name</th>
+            <th scope="col" class="text-center">Template name</th>
+            <th scope="col" class="text-center">Send to</th>
+            <th scope="col" class="text-center">Frequency</th>
+            <th scope="col" class="text-center">Send at</th>
+            <th scope="col" class="text-center">Status</th>
+            <th scope="col" class="text-center">Action</th>
+            <th scope="col" class="text-center">Launch</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for campaign in campaigns %}
+        <tr>
+            <th scope="row">{{ page_obj.start_index|add:forloop.counter0 }}</th>
+            <td><a href="{% url 'campaign_edit' pk=campaign.pk %}">{{ campaign.campaign_name }}</a></td>
+            <td><a href="{% url 'template_edit' pk=campaign.template.pk %}">{{ campaign.template }}</a></td>
+            <td>{{ campaign.client_tag }}</td>
+            <td>{{ campaign.frequency }}</td>
+            <td>{{ campaign.formatted_send_time }}</td>
+            <td>{{ campaign.status }}</td>
+            <td><a href="{% url 'campaign_edit' pk=campaign.pk %}">View/Edit</a></td>
+            <td><a href="#" data-bs-toggle="modal" data-bs-target="#confirmModal{{ forloop.counter }}">Go!</a>
+
+                <!--                Modal dialog to launch one campaign-->
+                <div class="modal fade" id="confirmModal{{ forloop.counter }}" tabindex="-1"
+                     aria-labelledby="confirmModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmModalLabel{{ forloop.counter }}">Launch Campaign</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <img src="{% static 'images/launch.jpg' %}" class="img-fluid rounded-start"
+                                     alt="Launch">
+                                <p>Are you sure you want to launch campaign "{{ campaign.campaign_name }}"?</p>
+                            </div>
+                            <div class="modal-footer">
+                                {% if campaign.pk %}
+                                <form method="post" action="{% url 'start_campaign' campaign.pk %}"
+                                      id="launchForm{{ forloop.counter }}">
+                                    {% csrf_token %}
+                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal"
+                                            onclick="document.forms['launchForm{{ forloop.counter }}'].submit()">Yes,
+                                        Launch!
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Oh, Gosh,
+                                        no!
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <!--                Modal dialog to launch all campaigns -->
+                <div class="modal fade" id="confirmAllModal" tabindex="-1" aria-labelledby="confirmAllModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmAllModalLabel">Launch all campaigns?</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <img src="{% static 'images/launch.jpg' %}" class="img-fluid rounded-start"
+                                     alt="Launch">
+                                <p>Are you sure you want to run all campaigns?</p>
+                                <form method="post" action="{% url 'run_all_campaigns' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning">Yes, launch!</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Oh, Gosh,
+                                        no!
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if page_obj.has_other_pages %}
+{% include 'includes/pagination.html' %}
+{% endif %}
+
+{% include 'includes/lower_border.html' %}
+{% endblock %}

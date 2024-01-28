@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<div class="container mt-4">
+    <div class="row justify-content-left">
+        <div class="col-6 mb-4" style="margin-left: 1rem;">
+            <div class="card" style="margin-bottom: 60px;">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-success">
+                            {% if object %}
+                            Save
+                            {% else %}
+                            Create
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <br><br>
+        <div class="col-md-5">
+            <img src="{% static 'blog/images/article.jpg' %}" class="img-fluid" alt="Article Image"
+                 style="max-width: 80%; height: auto; margin-top: 40px; margin-left: 60px;">
+        </div>
+    </div>
+</div>
+
+{% include 'includes/Lower_border.html' %}
+{% endblock %}

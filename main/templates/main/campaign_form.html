@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="d-flex justify-content-between">
+            <div class="col-md-5 mx-5" style="padding-top: 30px;">
+                <img src="{% static 'images/campaigns.jpg' %}" class="img-fluid" alt="Campaigns Image"
+                     style="max-width: 80%; height: auto;">
+            </div>
+            <div class="col-md-5 mb-5 mt-4 mx-5" style="margin-left: 10px; padding-top: 20px;">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="card">
+                        <div class="card-header">
+                            {% if object %}
+                            <h5 class="text-center">Edit campaign</h5>
+                            {% else %}
+                            <h5 class="text-center">Create campaign</h5>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            {% csrf_token %}
+                            {% for field in form %}
+                            <div class="mb-3">
+                                {{ field }}
+                            </div>
+                            {% endfor %}
+                            <br>
+
+                            <a href="{% url 'campaign_list' %}" class="btn btn-outline-success">Back to all
+                                campaigns</a>
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-outline-danger me-2" data-bs-toggle="modal"
+                                        data-bs-target="#confirmModal">
+                                    Delete
+                                </button>
+                                <button type="submit" class="btn btn-outline-success me-2">
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal window for deletion-->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete campaign "{{ object.campaign_name }}"?</p>
+            </div>
+            <div class="modal-footer">
+                {% if object.pk %}
+                <form method="post" action="{% url 'campaign_delete' object.pk %}" id="deleteForm">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                            onclick="document.forms['deleteForm'].submit()">Yes, Delete
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

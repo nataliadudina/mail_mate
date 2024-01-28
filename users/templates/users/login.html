@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="height: 60vh;">
+        <!-- Form column -->
+        <div class="col-10 col-md-4">
+            <div class="card box-shadow">
+                <div class="card-body">
+                    <form method="post" action="" class="form-floating">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next }}"/>
+                        <div class="form-error mb-3">{{ form.non_field_errors }}</div>
+                        {% for f in form %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>
+                            {{ f }}
+                            <div class="form-error">{{ f.errors }}</div>
+                        </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-warning w-50 mb-3">Login</button>
+
+                        <p><a href="{% url 'users:password_reset' %}">Forgot password?</a></p>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Image column -->
+        <div class="col-10 col-md-6">
+            <img src="{% static 'login.jpg' %}" alt="Authorization" class="img-fluid w-75">
+        </div>
+    </div>
+</div>
+
+{% endblock %}

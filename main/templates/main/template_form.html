@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% include 'includes/background_strip.html' %}
+
+<div class="row justify-content-center">
+    <div class="col-md-5 mb-5 mt-4">
+        <form method="post" enctype="multipart/form-data">
+            <div class="card">
+                <div class="card-header">
+                    {% if object %}
+                    <h5 class="text-center">Edit template</h5>
+                    {% else %}
+                    <h5 class="text-center">Create template</h5>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        {{ field }}
+                    </div>
+                    {% endfor %}
+                    <a href="{% url 'template_list' %}" class="btn btn-outline-success mb-2">Back to all templates</a>
+                    <button type="submit" class="btn btn-outline-success float-end">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <br><br>
+
+    <div class="col-md-5 mb-4 mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="text-center">{{ object.name|capfirst|default:'Template' }}</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-body-secondary"><b>Subject:</b> {{ object.subject|capfirst }}</h6>
+                <hr>
+                <p class="card-text"><b>Content:</b><br>{{ object.body|linebreaks }}</p>
+                {% if object %}
+                <hr>
+                <button type="button" class="btn btn-outline-danger float-end" data-bs-toggle="modal"
+                        data-bs-target="#confirmModal">
+                    Delete
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'includes/lower_border.html' %}
+
+<!-- Modal window for deletion-->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete template "{{ object.name }}"?</p>
+            </div>
+            <div class="modal-footer">
+                {% if object.pk %}
+                <form method="post" action="{% url 'template_delete' object.pk %}" id="deleteForm">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                            onclick="document.forms['deleteForm'].submit()">Yes, Delete
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
