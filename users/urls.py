@@ -2,7 +2,7 @@ from django.urls import path, reverse_lazy
 from django.contrib.auth.views import LogoutView, PasswordChangeDoneView, PasswordResetView, PasswordResetDoneView, \
     PasswordResetConfirmView, PasswordResetCompleteView
 from .views import LoginUser, RegisterUser, ProfileUser, UserPasswordChange, activation_sent_view, activate_account, \
-    user_list, CustomPasswordResetView
+    user_list
 
 app_name = 'users'
 
@@ -14,9 +14,6 @@ urlpatterns = [
     path('password-change/', UserPasswordChange.as_view(), name='password_change'),
     path('password-change/done/', PasswordChangeDoneView.as_view(template_name="users/password_change_done.html"),
          name='password_change_done'),
-
-    # for generating temporary password when reset
-    # path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
 
     # for generating a link to reset password
     path('password-reset/',
