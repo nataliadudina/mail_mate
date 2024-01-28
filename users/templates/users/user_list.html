@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+{% include 'includes/background_strip.html' %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 mt-5">
+            <h5 class="text-center"><b>Select one or several users</b></h5>
+            <br>
+            <form method="post">
+                {% csrf_token %}
+                <table class="table table-borderless table-hover">
+                    {% for user in users %}
+                    <tr>
+                        <td><b>{{ user.username }}</b></td>
+                        <td><input type="checkbox" name="blocked_users" value="{{ user.id }}"></td>
+                        <td><input type="checkbox" name="unblocked_users" value="{{ user.id }}"></td>
+                        {% if not user.is_active %}
+                        <td><span class="badge bg-danger">Blocked</span></td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="3" class="text-end">
+                            <button type="submit" class="btn btn-outline-danger">Block Selected Users</button>
+                            <button type="submit" class="btn btn-outline-success">Unblock Selected Users</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!-- Image column -->
+        <div class="col-12 col-md-5">
+            <img src="{% static 'block.jpg' %}" alt="Block" class="img-fluid w-75">
+        </div>
+    </div>
+</div>
+{% include 'includes/lower_border.html' %}
+{% endblock %}

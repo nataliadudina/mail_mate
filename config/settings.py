@@ -1,6 +1,7 @@
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import logging
 
 load_dotenv()
 
@@ -130,7 +131,7 @@ AUTHENTICATION_BACKENDS = [
     'users.authentication.NameAuthBackend',  # custom backend (email + password)
     ]
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"    # for yandex.ru
 
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT'))
@@ -155,18 +156,22 @@ if CACHE_ENABLED:
 AUTH_USER_MODEL = 'users.User'
 DEFAULT_USER_IMAGE = MEDIA_URL + 'images/users/default.jpg'
 
-# APScheduler settings
-# SCHEDULER_JOB_DEFAULTS = {
-#     'coalesce': False,  # tasks will not be merged and performed in parallel
-#     'max_instances': 3,  # max number of parallel task instances
-# }
-
-"""
- A Boolean parameter that controls whether to enable or disable the HTTP API for django-apscheduler. 
- When set to True, the API can be used to manage tasks in the scheduler. 
- This can be useful to dynamically add or remove tasks during application execution.
- """
-# SCHEDULER_API_ENABLED = True
-
-APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_DATETIME_FORMAT = "%d/%m/%Y %H:%M:%S"
 APSCHEDULER_RUN_NOW_TIMEOUT = 25
+
+# Gets the logger object
+logger = logging.getLogger(__name__)
+
+# Sets the journaling level
+logger.setLevel(logging.DEBUG)
+
+# Creates a handler to output messages to the console
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+
+# Creates a message formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+
+# Adds a handler to the logger
+logger.addHandler(console_handler)

@@ -28,19 +28,7 @@
 <!-Not empty client list-->
 {% else %}
 
-<!--&lt;!&ndash; Sidebar слева &ndash;&gt;-->
-<!--<td valign="top" class="left-chapters">-->
-<!--    <ul id="leftchapters">-->
-<!--        {% if tag_selected == 0 %}-->
-<!--        <li class="selected">All tags</li>-->
-<!--        {% else %}-->
-<!--        <li><a href="#">All tags</a></li>-->
-<!--        {% endif %}-->
-<!--    </ul>-->
-<!--</td>-->
-<!--&lt;!&ndash; Конец Sidebar'а &ndash;&gt;-->
-
-<div class="container col-xl-7 col-xxl-7 px-4 py-5 mb-4">
+<div class="container col-xl-10 col-xxl-10 px-4 py-5 mb-4">
     <a href="{% url 'client_form' %}" class="btn btn-outline-success mb-2">Add new client</a>
     <table class="table table-bordered border-warning table-warning table-hover">
         <thead>

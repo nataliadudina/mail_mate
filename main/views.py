@@ -1,28 +1,39 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, HttpResponseNotAllowed
+from django.core.exceptions import PermissionDenied
 from .models import MailingMessage, Client, MailCampaign, MailingLog
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, View
 from .forms import TemplateForm, ClientForm, MailCampaignForm
 from users.forms import SimpleRegisterUserForm
 from django.urls import reverse
-from main.tasks import launch_campaign
+from main.jobs import launch_campaign
+from main.services import schedule
 from django.views.decorators.http import require_POST
 from users.services import send_activation_email
 from blog.models import Article
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+
+# Denies user access to other objects
+class OwnerRequiredMixin:
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user:
+            raise PermissionDenied
+        return self.object
 
 
 def index(request):
     random_articles = Article.objects.all().order_by('?')[:3]  # Retrieves 3 random articles
     total_campaigns = MailCampaign.objects.all().count()
-    active_campaigns = MailCampaign.objects.filter(status='created').count()
-    total_clients = Client.objects.all().count()
+    active_campaigns = MailCampaign.objects.filter(status='launched').count()
+    total_clients = Client.objects.values('email').distinct().count()
     # flat=True means that the values will be represented as a one-dimensional list (not tuples)
     unique_tags_count = Client.objects.values_list('tag', flat=True).distinct().count()
 
     if request.method == 'POST':
         form = SimpleRegisterUserForm(request.POST)
         if form.is_valid():
-            # Save the data
             user = form.save()
             send_activation_email(request, user)
             return redirect('users:activation_sent')
@@ -40,13 +51,13 @@ def index(request):
     return render(request, 'main/index.html', context)
 
 
-class TemplateListView(ListView):
+class TemplateListView(LoginRequiredMixin, OwnerRequiredMixin, ListView):
     template_name = 'main/template_list.html'
     paginate_by = 10
     extra_context = {'page_title': 'Templates', 'title': 'Templates'}
 
     def get_queryset(self):
-        return MailingMessage.objects.all()
+        return MailingMessage.objects.filter(owner=self.request.user)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -54,7 +65,7 @@ class TemplateListView(ListView):
         return context
 
 
-class TemplateCreateView(CreateView):
+class TemplateCreateView(LoginRequiredMixin, OwnerRequiredMixin, CreateView):
     model = MailingMessage
     form_class = TemplateForm
     template_name = 'main/template_form.html'
@@ -62,15 +73,17 @@ class TemplateCreateView(CreateView):
 
     # Override the form_valid method to handle form submission
     def form_valid(self, form):
-        if form.is_valid():
-            form.save()
-            return super().form_valid(form)
+        owner = self.request.user
+        new_template = form.save(commit=False)
+        new_template.owner = owner
+        new_template.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('template_edit', kwargs={'pk': self.object.pk})
 
 
-class TemplateUpdateView(UpdateView):
+class TemplateUpdateView(LoginRequiredMixin, OwnerRequiredMixin, UpdateView):
     model = MailingMessage
     form_class = TemplateForm
     template_name = 'main/template_form.html'
@@ -78,13 +91,17 @@ class TemplateUpdateView(UpdateView):
 
     # Override the form_valid method to handle form submission
     def form_valid(self, form):
+        owner = self.request.user
+        new_template = form.save(commit=False)
+        new_template.owner = owner
+        new_template.save()
         return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('template_edit', kwargs={'pk': self.object.pk})
 
 
-class TemplateDeleteView(DeleteView):
+class TemplateDeleteView(LoginRequiredMixin, OwnerRequiredMixin, DeleteView):
     model = MailingMessage
     template_name = 'main/template_form.html'
 
@@ -92,13 +109,13 @@ class TemplateDeleteView(DeleteView):
         return reverse('template_list')
 
 
-class ClientListView(ListView):
+class ClientListView(LoginRequiredMixin, OwnerRequiredMixin, ListView):
     template_name = 'main/client_list.html'
     paginate_by = 10
     extra_context = {'page_title': 'Clients', 'title': 'Clients'}
 
     def get_queryset(self):
-        return Client.objects.all()
+        return Client.objects.filter(owner=self.request.user)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -106,7 +123,7 @@ class ClientListView(ListView):
         return context
 
 
-class ClientCreateView(CreateView):
+class ClientCreateView(LoginRequiredMixin, OwnerRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
     template_name = 'main/client_form.html'
@@ -114,15 +131,17 @@ class ClientCreateView(CreateView):
 
     # Override the form_valid method to handle form submission
     def form_valid(self, form):
-        if form.is_valid():
-            form.save()
-            return super().form_valid(form)
+        owner = self.request.user
+        new_client = form.save(commit=False)
+        new_client.owner = owner
+        new_client.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('client_list')
 
 
-class ClientUpdateView(UpdateView):
+class ClientUpdateView(LoginRequiredMixin, OwnerRequiredMixin, UpdateView):
     model = Client
     form_class = ClientForm
     template_name = 'main/client_form.html'
@@ -130,15 +149,17 @@ class ClientUpdateView(UpdateView):
 
     # Override the form_valid method to handle form submission
     def form_valid(self, form):
-        if form.is_valid():
-            form.save()
-            return super().form_valid(form)
+        owner = self.request.user
+        new_client = form.save(commit=False)
+        new_client.owner = owner
+        new_client.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('client_list')
 
 
-class ClientDeleteView(DeleteView):
+class ClientDeleteView(LoginRequiredMixin, OwnerRequiredMixin, DeleteView):
     model = Client
     template_name = 'main/client_form.html'
 
@@ -146,19 +167,21 @@ class ClientDeleteView(DeleteView):
         return reverse('client_list')
 
 
-# def show_client_tags(request, tag_slug):
-#     tag = get_object_or_404(Client, slug=tag_slug)
-#     clients = Client.objects.filter()
-
-
-class MailCampaignList(ListView):
+class MailCampaignList(LoginRequiredMixin, ListView):
     template_name = 'main/campaign_list.html'
     model = MailCampaign
     paginate_by = 10
     extra_context = {'page_title': 'Campaigns', 'title': 'Campaigns'}
 
+    def is_manager(self):
+        return self.request.user.is_manager()
+
     def get_queryset(self):
-        return super().get_queryset()
+        user = self.request.user
+        if self.is_manager():
+            return MailCampaign.objects.all()
+        else:
+            return MailCampaign.objects.filter(owner=user)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -166,7 +189,7 @@ class MailCampaignList(ListView):
         return context
 
 
-class MailCampaignCreate(CreateView):
+class MailCampaignCreate(LoginRequiredMixin, OwnerRequiredMixin, CreateView):
     model = MailCampaign
     form_class = MailCampaignForm
     template_name = 'main/campaign_form.html'
@@ -174,13 +197,22 @@ class MailCampaignCreate(CreateView):
 
     # Override the form_valid method to handle form submission
     def form_valid(self, form):
+        owner = self.request.user
+        campaign = form.save(commit=False)
+        campaign.owner = owner
+        campaign.save()
         return super().form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super(MailCampaignCreate, self).get_form_kwargs()
+        kwargs.update({'request': self.request})
+        return kwargs
 
     def get_success_url(self):
         return reverse('campaign_list')
 
 
-class MailCampaignUpdate(UpdateView):
+class MailCampaignUpdate(LoginRequiredMixin, OwnerRequiredMixin, UpdateView):
     model = MailCampaign
     form_class = MailCampaignForm
     template_name = 'main/campaign_form.html'
@@ -193,11 +225,16 @@ class MailCampaignUpdate(UpdateView):
             self.object.save()
         return super().form_valid(form)
 
+    def get_form_kwargs(self):
+        kwargs = super(MailCampaignUpdate, self).get_form_kwargs()
+        kwargs.update({'request': self.request})
+        return kwargs
+
     def get_success_url(self):
         return reverse('campaign_list')
 
 
-class MailCampaignDelete(DeleteView):
+class MailCampaignDelete(LoginRequiredMixin, OwnerRequiredMixin, DeleteView):
     model = MailCampaign
     template_name = 'main/campaign_form.html'
 
@@ -207,41 +244,40 @@ class MailCampaignDelete(DeleteView):
 
 @require_POST
 def start_campaign(request, pk):
-    # Runs the campaign when it is launched manually
     campaign = get_object_or_404(MailCampaign, pk=pk)
-    launch_campaign(campaign.pk)  # Launches campaign
+    user_email = request.user.email
+    launch_campaign(campaign.pk, user_email)  # Run one campaign manually
     return redirect('campaign_list')
 
 
-class MailingLogView(ListView):
+@require_POST
+def start_all_campaigns(request):
+    user_email = request.user.email
+    if request.method == 'POST':
+        schedule(user_email)  # Run scheduler for all campaigns
+        return redirect('campaign_list')
+    else:
+        return HttpResponseNotAllowed(['POST'])
+
+
+class MailingLogView(LoginRequiredMixin, OwnerRequiredMixin, ListView):
     model = MailingLog
     template_name = 'main/mailing_logs.html'
     paginate_by = 10
     extra_context = {'page_title': 'Mailing Logs', 'title': 'Mailing Logs'}
 
     def get_queryset(self):
-        try:
-            # Filtering of mailings by launched and completed statuses
-            return MailingLog.objects.all()
-        except OperationalError as e:
-            return HttpResponseServerError("Database Error: " + str(e))
+        return MailingLog.objects.filter(owner=self.request.user)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        try:
-            mailing_logs = self.get_queryset()
-            context['mailing_list'] = mailing_logs
-        except OperationalError as e:
-            context['mailing_list'] = []
-            context['error_message'] = "Database Error: " + str(e)
-
+        context['logs'] = context['object_list']
         return context
 
 
 class ClearLogsView(View):
     def post(self, request):
-        MailingLog.objects.all().delete()
+        MailingLog.objects.filter(owner=self.request.user).delete()
         return redirect('campaign_list')
 
 

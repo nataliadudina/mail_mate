@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetView
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
-
 from users.forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm, \
     CustomPasswordResetForm
 from users.services import activate_user, send_activation_email
@@ -22,9 +22,6 @@ class LoginUser(LoginView):
     template_name = 'users/login.html'
     extra_context = {'title': 'Authorization',
                      'page_title': 'Login'}
-
-    def get_success_url(self):
-        return reverse_lazy('home')
 
 
 class RegisterUser(CreateView):
@@ -115,3 +112,35 @@ class CustomPasswordResetView(PasswordResetView):
     template_name = 'users/password_reset_form.html'
     email_template_name = 'users/password_reset_email.html'
     success_url = reverse_lazy('users:password_reset_done')
+
+
+def is_content_manager_or_admin(user):
+    return user.is_superuser or user.is_manager()
+
+
+@login_required
+@user_passes_test(is_content_manager_or_admin)
+def user_list(request):
+    if request.method == 'POST':
+        blocked_users_ids = request.POST.getlist('blocked_users')
+        blocked_users = get_user_model().objects.filter(id__in=blocked_users_ids)
+        unblocked_users_ids = request.POST.getlist('unblocked_users')
+        unblocked_users = get_user_model().objects.filter(id__in=unblocked_users_ids)
+
+        for user in blocked_users:
+            user.is_active = False
+            user.save()
+
+        for user in unblocked_users:
+            user.is_active = True
+            user.save()
+
+        return redirect('users:user_list')
+
+    users = get_user_model().objects.all().order_by('pk')
+    context = {
+        'title': 'Users List',
+        'page_title': 'Users',
+        'users': users,
+    }
+    return render(request, 'users/user_list.html', context)

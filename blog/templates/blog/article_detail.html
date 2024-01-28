@@ -22,8 +22,10 @@
                         <br>
 
                         <!-- Buttons for editing, deleting, viewing articles -->
+                        {% if perms.blog.change_article %}
                     <p style="text-align: left;"><a href="{% url 'update' slug=article.slug %}">Edit</a> |
                     <a href="{% url 'delete' slug=article.slug %}">Delete</a></p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

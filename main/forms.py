@@ -32,9 +32,13 @@ class MailCampaignForm(forms.ModelForm):
         fields = ['campaign_name', 'send_time', 'frequency', 'template', 'client_tag']
         widgets = {
             'campaign_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Campaign name'}),
-            'send_time': DateTimeInput(attrs={'type': 'datetime-local'})
+            'send_time': DateTimeInput(attrs={'type': 'datetime-local'}),
+            'frequency': forms.Select(attrs={'placeholder': 'Choose frequency'})
         }
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request')
         super(MailCampaignForm, self).__init__(*args, **kwargs)
-        self.fields['client_tag'].queryset = Client.objects.order_by('tag').distinct('tag')
+
+        self.fields['template'].queryset = MailingMessage.objects.filter(owner=self.request.user)
+        self.fields['client_tag'].queryset = Client.objects.filter(owner=self.request.user).order_by('tag').distinct('tag')

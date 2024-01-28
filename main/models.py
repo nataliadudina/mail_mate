@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 
 class Client(models.Model):
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     email = models.EmailField()
     full_name = models.CharField(max_length=255, verbose_name='Full Name')
     comment = models.TextField(null=True, blank=True)
@@ -15,9 +17,11 @@ class Client(models.Model):
         verbose_name = 'client'
         verbose_name_plural = 'clients'
         ordering = ['tag']
+        unique_together = (('owner', 'email'),)
 
 
 class MailingMessage(models.Model):
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=True, blank=True)
     subject = models.CharField(max_length=255)
     body = models.TextField(verbose_name='Content')
@@ -32,6 +36,7 @@ class MailingMessage(models.Model):
 
 
 class MailCampaign(models.Model):
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     campaign_name = models.CharField(max_length=100)
     send_time = models.DateTimeField(blank=True, null=True)
 
@@ -71,6 +76,7 @@ class MailCampaign(models.Model):
 
 
 class MailingLog(models.Model):
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     mailing = models.ForeignKey(MailCampaign, on_delete=models.CASCADE, related_name='mailing')
     campaign_name = models.CharField(max_length=100)
     attempt_datetime = models.DateTimeField()

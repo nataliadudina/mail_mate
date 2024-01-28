@@ -2,7 +2,7 @@ from django.urls import path, reverse_lazy
 from django.contrib.auth.views import LogoutView, PasswordChangeDoneView, PasswordResetView, PasswordResetDoneView, \
     PasswordResetConfirmView, PasswordResetCompleteView
 from .views import LoginUser, RegisterUser, ProfileUser, UserPasswordChange, activation_sent_view, activate_account, \
-    CustomPasswordResetView
+    user_list, CustomPasswordResetView
 
 app_name = 'users'
 
@@ -43,4 +43,6 @@ urlpatterns = [
     path('activation-sent/', activation_sent_view, name='activation_sent'),
     path('activate/<str:activation_token>/', activate_account, name='activate'),
     path('profile/', ProfileUser.as_view(), name='profile'),
+
+    path('', user_list, name='user_list'),
 ]

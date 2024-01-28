@@ -10,7 +10,7 @@
 <div class="card border-warning mb-3 mx-auto mt-4" style="max-width: 700px;">
     <div class="row g-2">
         <div class="col-md-5">
-            <img src="{% static 'images/start.png' %}" class="img-fluid rounded-start" alt="...">
+            <img src="{% static 'images/start.png' %}" class="img-fluid rounded-start" alt="Start">
         </div>
         <div class="col-md-7 d-flex flex-column">
             <div class="card-body mt-auto">
@@ -26,8 +26,13 @@
 
 <!--Not empty campaign list-->
 {% else %}
-<div class="container col-xl-7 col-xxl-7 px-4 py-5 mb-4">
-    <a href="{% url 'campaign_form' %}" class="btn btn-outline-success mb-2">Create campaign</a>
+<div class="container col-xl-10 col-xxl-10 px-4 py-5 mb-4">
+    <div style="display: flex; justify-content: space-between;">
+        <a href="{% url 'campaign_form' %}" class="btn btn-outline-success mb-2">Create campaign</a>
+        <button type="button" class="btn btn-warning mb-2" data-bs-toggle="modal" data-bs-target="#confirmAllModal">
+            Run all campaigns
+        </button>
+    </div>
     <table class="table table-bordered border-warning table-warning table-hover">
         <thead>
         <tr>
@@ -56,7 +61,7 @@
             <td><a href="{% url 'campaign_edit' pk=campaign.pk %}">View/Edit</a></td>
             <td><a href="#" data-bs-toggle="modal" data-bs-target="#confirmModal{{ forloop.counter }}">Go!</a>
 
-                <!--                Modal dialog to launch campaign-->
+                <!--                Modal dialog to launch one campaign-->
                 <div class="modal fade" id="confirmModal{{ forloop.counter }}" tabindex="-1"
                      aria-labelledby="confirmModalLabel"
                      aria-hidden="true">
@@ -68,6 +73,8 @@
                                         aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
+                                <img src="{% static 'images/launch.jpg' %}" class="img-fluid rounded-start"
+                                     alt="Launch">
                                 <p>Are you sure you want to launch campaign "{{ campaign.campaign_name }}"?</p>
                             </div>
                             <div class="modal-footer">
@@ -84,6 +91,32 @@
                                     </button>
                                 </form>
                                 {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <!--                Modal dialog to launch all campaigns -->
+                <div class="modal fade" id="confirmAllModal" tabindex="-1" aria-labelledby="confirmAllModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmAllModalLabel">Launch all campaigns?</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <img src="{% static 'images/launch.jpg' %}" class="img-fluid rounded-start"
+                                     alt="Launch">
+                                <p>Are you sure you want to run all campaigns?</p>
+                                <form method="post" action="{% url 'run_all_campaigns' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning">Yes, launch!</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Oh, Gosh,
+                                        no!
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>

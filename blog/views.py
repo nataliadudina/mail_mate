@@ -1,8 +1,7 @@
 from django.urls import reverse_lazy
 from django.utils.text import slugify
 from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
-# from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
+from django.contrib.auth.mixins import UserPassesTestMixin
 from blog.models import Article
 
 
@@ -11,7 +10,7 @@ class BlogListView(ListView):
     model = Article
     template_name = 'blog/blog.html'
     context_object_name = 'articles'
-    paginate_by = 9
+    paginate_by = 6
     extra_context = {'page_title': 'Mailing Blog', 'title': 'Mailing Blog'}
 
     # Only retrieves published articles for the view
@@ -20,7 +19,7 @@ class BlogListView(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['articles'] = context['article_list']
+        context['articles'] = context['object_list']
         return context
 
 
@@ -48,42 +47,44 @@ class ArticleFormMixin:
         if form.is_valid():
             article = form.save(commit=False)
             article.slug = slugify(article.title)
-            article.save()
 
             image = form.cleaned_data['image']
             if image:
                 article.image = image
-                article.save()
-
+            article.save()
             return super().form_valid(form)
 
 
-class ArticleCreateView(ArticleFormMixin, CreateView):    # LoginRequiredMixin
+class ArticleCreateView(UserPassesTestMixin, ArticleFormMixin, CreateView):
     model = Article
     fields = ('title', 'content', 'publication', 'image')
     extra_context = {'page_title': 'Mailing Blog: write', 'title': 'Writing New Post'}
 
+    def test_func(self):
+        # User must be in 'content-manager' group
+        return self.request.user.groups.filter(name='content-manager').exists()
 
-class ArticleUpdateView(ArticleFormMixin, UpdateView):    # UserPassesTestMixin,
+
+class ArticleUpdateView(UserPassesTestMixin, ArticleFormMixin, UpdateView):
     # User must pass certain checks to update an article
     model = Article
     fields = ('title', 'content', 'publication', 'image')
     extra_context = {'page_title': 'Mailing Blog: edit', 'title': 'Updating the Post'}
 
     # Checks if the user is allowed to update the article
-    # def test_func(self):
-    #     article = self.get_object()
-    #     # User must be in 'content-manager' group
-    #     return self.request.user.groups.filter(name='content-manager').exists()
+    def test_func(self):
+        article = self.get_object()
+        # User must be in 'content-manager' group
+        return self.request.user.groups.filter(name='content-manager').exists()
 
 
-class ArticleDeleteView(DeleteView):    # UserPassesTestMixin,
+class ArticleDeleteView(UserPassesTestMixin, DeleteView):
     model = Article
     template_name = 'blog/article_delete.html'
     extra_context = {'page_title': 'Mailing Blog', 'title': 'Delete the Post'}
     success_url = reverse_lazy('list')
 
-    # def test_func(self):
-    #     article = self.get_object()
-    #     # User must be in 'content-manager' group
-    #     return self.request.user.groups.filter(name='content-manager').exists()
+    def test_func(self):
+        article = self.get_object()
+        # User must be in 'content-manager' group
+        return self.request.user.groups.filter(name='content-manager').exists()
