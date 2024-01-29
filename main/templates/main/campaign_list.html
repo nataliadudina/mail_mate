@@ -30,7 +30,7 @@
     <div style="display: flex; justify-content: space-between;">
         <a href="{% url 'campaign_form' %}" class="btn btn-outline-success mb-2">Create campaign</a>
         <button type="button" class="btn btn-warning mb-2" data-bs-toggle="modal" data-bs-target="#confirmAllModal">
-            Run all campaigns
+            Schedule all
         </button>
     </div>
     <table class="table table-bordered border-warning table-warning table-hover">
@@ -59,7 +59,7 @@
             <td>{{ campaign.formatted_send_time }}</td>
             <td>{{ campaign.status }}</td>
             <td><a href="{% url 'campaign_edit' pk=campaign.pk %}">View/Edit</a></td>
-            <td><a href="#" data-bs-toggle="modal" data-bs-target="#confirmModal{{ forloop.counter }}">Go!</a>
+            <td><a href="#" data-bs-toggle="modal" data-bs-target="#confirmModal{{ forloop.counter }}">Send now!</a>
 
                 <!--                Modal dialog to launch one campaign-->
                 <div class="modal fade" id="confirmModal{{ forloop.counter }}" tabindex="-1"
@@ -84,7 +84,7 @@
                                     {% csrf_token %}
                                     <button type="button" class="btn btn-warning" data-bs-dismiss="modal"
                                             onclick="document.forms['launchForm{{ forloop.counter }}'].submit()">Yes,
-                                        Launch!
+                                        run it now!
                                     </button>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Oh, Gosh,
                                         no!
@@ -102,14 +102,14 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="confirmAllModalLabel">Launch all campaigns?</h5>
+                                <h5 class="modal-title" id="confirmAllModalLabel">Schedule all campaigns?</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <img src="{% static 'images/launch.jpg' %}" class="img-fluid rounded-start"
                                      alt="Launch">
-                                <p>Are you sure you want to run all campaigns?</p>
+                                <p>Are you sure you want to run all campaigns on schedule?</p>
                                 <form method="post" action="{% url 'run_all_campaigns' %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-warning">Yes, launch!</button>
